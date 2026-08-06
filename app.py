@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import re
 from pathlib import Path
 from typing import Any
 
@@ -224,14 +225,310 @@ st.markdown(
     """
 <div class="top-shell">
   <div class="top-title-row">
-    <div class="back-text">‹ League</div>
-    <div class="page-title">2026 Draft Coach</div>
+    <div style="width:52px"></div>
+    <div class="page-title">Shiva Draft Intelligence</div>
     <div style="width:52px"></div>
   </div>
 </div>
 """,
     unsafe_allow_html=True,
 )
+
+
+st.markdown('''
+
+<style>
+/* Compact ESPN-style icon navigation */
+.nav-caption{
+  color:#77787d;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin:10px 0 7px;
+}
+.st-key-nav_history button,
+.st-key-nav_coach button,
+.st-key-nav_fit button,
+.st-key-nav_slot button,
+.st-key-nav_live button,
+.st-key-nav_grade button,
+.st-key-nav_intel button{
+  min-height:72px!important;
+  padding:8px 4px!important;
+  border-radius:18px!important;
+  border:1px solid #313136!important;
+  background:#1c1c1f!important;
+  color:#a9a9ae!important;
+  font-size:10px!important;
+  line-height:1.12!important;
+  font-weight:1000!important;
+  box-shadow:none!important;
+}
+.st-key-nav_history button p,
+.st-key-nav_coach button p,
+.st-key-nav_fit button p,
+.st-key-nav_slot button p,
+.st-key-nav_live button p,
+.st-key-nav_grade button p,
+.st-key-nav_intel button p{
+  white-space:pre-line!important;
+  text-align:center!important;
+  line-height:1.15!important;
+  color:inherit!important;
+}
+.st-key-nav_history button[kind="primary"],
+.st-key-nav_coach button[kind="primary"],
+.st-key-nav_fit button[kind="primary"],
+.st-key-nav_slot button[kind="primary"],
+.st-key-nav_live button[kind="primary"],
+.st-key-nav_grade button[kind="primary"],
+.st-key-nav_intel button[kind="primary"]{
+  background:#2a2a2e!important;
+  color:#ffffff!important;
+  border-color:#31f22f!important;
+  box-shadow:inset 0 -4px 0 #31f22f!important;
+}
+.st-key-nav_history button:hover,
+.st-key-nav_coach button:hover,
+.st-key-nav_fit button:hover,
+.st-key-nav_slot button:hover,
+.st-key-nav_live button:hover,
+.st-key-nav_grade button:hover,
+.st-key-nav_intel button:hover{
+  background:#252529!important;
+  color:#fff!important;
+}
+.report-box{
+  background:#151518;
+  border:1px solid #2c2c31;
+  border-radius:14px;
+  padding:13px;
+  margin:8px 0 12px;
+}
+.report-title{
+  color:#fff;
+  font-size:14px;
+  font-weight:1000;
+}
+.report-answer{
+  color:#31f22f;
+  font-size:25px;
+  line-height:1.05;
+  font-weight:1000;
+  margin-top:6px;
+}
+.report-note{
+  color:#929399;
+  font-size:11px;
+  line-height:1.45;
+  margin-top:6px;
+}
+[data-testid="stTextInput"] input{
+  min-height:48px!important;
+  border-radius:14px!important;
+  background:#1f2330!important;
+  color:#fff!important;
+}
+</style>
+
+''', unsafe_allow_html=True)
+
+
+st.markdown('''
+
+<style>
+/* ESPN-LIKE MOBILE TEAM SELECTOR */
+.team-selector-shell{
+  background:#080809;
+  margin:0 -14px 10px;
+  padding:0 14px 12px;
+  border-bottom:1px solid #222226;
+}
+.team-selector-label{
+  color:#76777d;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.st-key-top_manager [data-baseweb="select"]>div{
+  background:#17171a!important;
+  border:1px solid #303035!important;
+  border-radius:13px!important;
+  min-height:48px!important;
+}
+.st-key-top_manager [data-baseweb="select"] span{
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:1000!important;
+}
+.st-key-top_league [data-baseweb="select"]>div{
+  background:#17171a!important;
+  border:1px solid #303035!important;
+  border-radius:13px!important;
+  min-height:44px!important;
+}
+.st-key-top_league [data-baseweb="select"] span{
+  color:#5b98ff!important;
+  font-weight:900!important;
+}
+
+</style>
+
+''', unsafe_allow_html=True)
+
+
+st.markdown('''
+
+<style>
+.shiva-nav-shell{
+  width:100%;
+  margin:0 0 12px;
+  padding:10px 6px 8px;
+  border:1px solid #303035;
+  border-radius:18px;
+  background:#1d1d20;
+}
+.shiva-nav-title{
+  color:#fff;
+  font-size:14px;
+  font-weight:1000;
+  margin:0 0 8px 4px;
+}
+.st-key-tool_history button,
+.st-key-tool_coach button,
+.st-key-tool_fit button,
+.st-key-tool_plan button,
+.st-key-tool_live button,
+.st-key-tool_grade button,
+.st-key-tool_intel button{
+  width:100%!important;
+  min-width:0!important;
+  min-height:78px!important;
+  padding:6px 1px 0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:
+    radial-gradient(circle 24px at 50% 24px,#45464c 0 23px,transparent 24px)!important;
+  box-shadow:none!important;
+  color:#a8a8ad!important;
+  font-size:9.5px!important;
+  line-height:1.08!important;
+  font-weight:800!important;
+  white-space:pre-line!important;
+  text-align:center!important;
+}
+.st-key-tool_history button p,
+.st-key-tool_coach button p,
+.st-key-tool_fit button p,
+.st-key-tool_plan button p,
+.st-key-tool_live button p,
+.st-key-tool_grade button p,
+.st-key-tool_intel button p{
+  color:inherit!important;
+  white-space:pre-line!important;
+  text-align:center!important;
+  line-height:1.08!important;
+  margin:0!important;
+}
+.st-key-tool_history button[kind="primary"],
+.st-key-tool_coach button[kind="primary"],
+.st-key-tool_fit button[kind="primary"],
+.st-key-tool_plan button[kind="primary"],
+.st-key-tool_live button[kind="primary"],
+.st-key-tool_grade button[kind="primary"],
+.st-key-tool_intel button[kind="primary"]{
+  background:
+    radial-gradient(circle 25px at 50% 24px,#20f45a 0 2px,#4d4d51 3px 23px,transparent 24px)!important;
+  color:#fff!important;
+}
+div[data-testid="stHorizontalBlock"]:has(.st-key-tool_intel),
+div[data-testid="stHorizontalBlock"]:has(.st-key-tool_live){
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:4px!important;
+  width:100%!important;
+}
+div[data-testid="stHorizontalBlock"]:has(.st-key-tool_intel)>div,
+div[data-testid="stHorizontalBlock"]:has(.st-key-tool_live)>div{
+  flex:1 1 0!important;
+  width:25%!important;
+  min-width:0!important;
+}
+
+.daily-tip{
+  background:linear-gradient(135deg,#17371f,#1b1b1e);
+  border:1px solid #2d5e36;
+  border-radius:15px;
+  padding:14px;
+  margin-bottom:12px;
+}
+.daily-tip-label{
+  color:#31f22f;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.daily-tip-text{
+  color:#fff;
+  font-size:14px;
+  line-height:1.4;
+  font-weight:900;
+  margin-top:5px;
+}
+.coach-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-bottom:12px;
+}
+.coach-card{
+  background:#1c1c1f;
+  border:1px solid #29292d;
+  border-radius:14px;
+  min-height:84px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.coach-label{
+  color:#77787e;
+  font-size:9px;
+  font-weight:1000;
+  line-height:1.15;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.coach-value{
+  color:#fff;
+  font-size:15px;
+  line-height:1.08;
+  font-weight:1000;
+}
+.coach-value.green{color:#31f22f;}
+.coach-value.blue{color:#5b98ff;}
+.coach-value.red{color:#ff525d;}
+.coaching-card{
+  background:#1c1c1f;
+  border:1px solid #29292d;
+  border-radius:14px;
+  padding:13px;
+  margin-bottom:9px;
+}
+.coaching-title{
+  color:#fff;
+  font-size:13px;
+  line-height:1.38;
+  font-weight:900;
+}
+</style>
+
+''', unsafe_allow_html=True)
 
 
 @st.cache_data(show_spinner=False)
@@ -515,101 +812,425 @@ def player_fit(rows: pd.DataFrame,current_pick: int) -> pd.DataFrame:
     return result.sort_values(["Recommendation Score","adp"],ascending=[False,True])
 
 
-# REAL FUNCTIONAL NAVIGATION — NO RADIO WIDGETS.
-if "top_nav" not in st.session_state:
-    st.session_state.top_nav = "Draft Intelligence"
-if "section_nav" not in st.session_state:
-    st.session_state.section_nav = "2026 Draft Coach"
 
-top1,top2 = st.columns(2)
-with top1:
-    if st.button(
-        "League History",
+def selected_franchise_keys(manager: str, scope: str) -> set[tuple[str,int]]:
+    current = current_franchises[current_franchises["manager_name"].eq(manager)]
+    if scope != "Combined":
+        current = current[current["league_name"].eq(scope)]
+    return set(zip(current["league_name"], current["team_id"]))
+
+
+def historical_draft_lookup(manager: str, scope: str, season_choice: str) -> pd.DataFrame:
+    keys = selected_franchise_keys(manager, scope)
+    if not keys:
+        return graded.iloc[0:0].copy()
+
+    result = graded[
+        graded.apply(
+            lambda row: (row["league_name"], row["team_id"]) in keys,
+            axis=1,
+        )
+    ].copy()
+
+    if season_choice != "All Seasons":
+        result = result[result["season"].eq(int(season_choice))]
+
+    return result.sort_values(["season", "round", "overall_pick"], ascending=[False, True, True])
+
+
+def parse_quick_report(prompt: str) -> dict[str, Any]:
+    query = prompt.lower().strip()
+
+    position = None
+    for pos in ["qb", "rb", "wr", "te"]:
+        if re.search(rf"\b{pos}\b", query):
+            position = pos.upper()
+            break
+
+    top_match = re.search(r"top\s*(\d+)", query)
+    top_n = int(top_match.group(1)) if top_match else None
+
+    years_match = re.search(r"(?:last|past)\s*(\d+)\s*years?", query)
+    last_years = int(years_match.group(1)) if years_match else None
+
+    season_pool = graded.copy()
+    if position:
+        season_pool = season_pool[season_pool["position"].eq(position)]
+
+    if last_years:
+        max_season = int(season_pool["season"].max())
+        min_season = max_season-last_years+1
+        season_pool = season_pool[season_pool["season"].between(min_season, max_season)]
+
+    if top_n:
+        season_pool = season_pool[season_pool["position_finish_total"].le(top_n)]
+
+    if "age" in query:
+        return {
+            "title":"Age report unavailable",
+            "answer":"Age is not in this app database",
+            "note":"The current SQLite app contains league drafts, positional finishes, PPR points, PPG and games played. It does not contain verified historical player age, so the app will not estimate or invent it.",
+            "table":pd.DataFrame(),
+        }
+
+    if season_pool.empty:
+        return {
+            "title":"No matching records",
+            "answer":"0 records",
+            "note":"Try changing the position, finish threshold or date range.",
+            "table":pd.DataFrame(),
+        }
+
+    if "average" in query and ("ppg" in query or "points per game" in query):
+        value = season_pool["ppg"].mean()
+        return {
+            "title":"Average fantasy points per game",
+            "answer":f"{value:.2f} PPG",
+            "note":f"{len(season_pool)} matched player-seasons.",
+            "table":season_pool[
+                ["season","player_name","position","position_finish_total","ppg","games_played"]
+            ].sort_values(["season","position_finish_total"]),
+        }
+
+    if "average" in query and ("points" in query or "scoring" in query):
+        value = season_pool["fantasy_points_ppr"].mean()
+        return {
+            "title":"Average full-PPR points",
+            "answer":f"{value:.1f} points",
+            "note":f"{len(season_pool)} matched player-seasons.",
+            "table":season_pool[
+                ["season","player_name","position","position_finish_total","fantasy_points_ppr","ppg"]
+            ].sort_values(["season","position_finish_total"]),
+        }
+
+    if "average" in query and ("games" in query or "games played" in query):
+        value = season_pool["games_played"].mean()
+        return {
+            "title":"Average games played",
+            "answer":f"{value:.1f} games",
+            "note":f"{len(season_pool)} matched player-seasons.",
+            "table":season_pool[
+                ["season","player_name","position","position_finish_total","games_played","ppg"]
+            ].sort_values(["season","position_finish_total"]),
+        }
+
+    if "best" in query and "round" in query:
+        summary = (
+            season_pool.groupby("round", as_index=False)
+            .agg(
+                Picks=("player_name","count"),
+                Average_Score=("Pick Score","mean"),
+            )
+            .sort_values("Average_Score", ascending=False)
+        )
+        best = summary.iloc[0]
+        return {
+            "title":"Best historical draft round",
+            "answer":f"Round {int(best['round'])}",
+            "note":f"Average pick score {best['Average_Score']:.1f} across {int(best['Picks'])} picks.",
+            "table":summary,
+        }
+
+    if "bust" in query:
+        busts = season_pool[season_pool["Result"].eq("Bust")]
+        rate = len(busts)/len(season_pool)*100
+        return {
+            "title":"Bust rate",
+            "answer":f"{rate:.1f}%",
+            "note":f"{len(busts)} busts among {len(season_pool)} matched picks.",
+            "table":busts[
+                ["season","manager_name","round","player_name","position","position_draft_rank","position_finish_total"]
+            ].sort_values(["season","round"], ascending=[False,True]),
+        }
+
+    if "steal" in query or "best picks" in query:
+        steals = season_pool.sort_values("Pick Score", ascending=False).head(20)
+        return {
+            "title":"Best historical picks",
+            "answer":f"{len(steals)} picks shown",
+            "note":"Ranked by the app's premium-round-weighted pick score.",
+            "table":steals[
+                ["season","manager_name","round","player_name","position","position_draft_rank","position_finish_total","Result"]
+            ],
+        }
+
+    if "top" in query or "finish" in query:
+        value = season_pool["fantasy_points_ppr"].mean()
+        return {
+            "title":"Matched top-finish report",
+            "answer":f"{len(season_pool)} player-seasons",
+            "note":f"Average production: {value:.1f} full-PPR points.",
+            "table":season_pool[
+                ["season","player_name","position","position_finish_total","fantasy_points_ppr","ppg","games_played"]
+            ].sort_values(["season","position_finish_total"]),
+        }
+
+    return {
+        "title":"Quick report",
+        "answer":f"{len(season_pool)} matching records",
+        "note":"Supported requests include average PPG, average points, games played, top positional finishes, busts, steals and best rounds. Historical age is not currently available in the app database.",
+        "table":season_pool[
+            ["season","manager_name","round","player_name","position","position_draft_rank","position_finish_total","fantasy_points_ppr","ppg"]
+        ].head(50),
+    }
+
+
+
+# ESPN-style team selector at the top.
+top_league_col, top_manager_col = st.columns([0.36,0.64])
+
+with top_league_col:
+    scope = st.selectbox(
+        "League",
+        ["Shiva","Shiva 2.0","Combined"],
         key="top_league",
-        use_container_width=True,
-        type="primary" if st.session_state.top_nav=="League History" else "secondary",
-    ):
-        st.session_state.top_nav = "League History"
-        st.rerun()
-with top2:
-    if st.button(
-        "Draft Intelligence",
-        key="top_draft",
-        use_container_width=True,
-        type="primary" if st.session_state.top_nav=="Draft Intelligence" else "secondary",
-    ):
-        st.session_state.top_nav = "Draft Intelligence"
-        st.rerun()
+        label_visibility="collapsed",
+    )
 
-if st.session_state.top_nav == "League History":
-    page = "History"
-else:
-    nav1 = st.columns(3)
-    nav2 = st.columns(2)
-
-    sections = [
-        ("2026 Draft Coach","coach",nav1[0]),
-        ("Player Fit","fit",nav1[1]),
-        ("Draft Slot Plan","slot",nav1[2]),
-        ("Live Draft","live",nav2[0]),
-        ("Grade My Draft","grade",nav2[1]),
-    ]
-
-    for label,key,column in sections:
-        with column:
-            if st.button(
-                label,
-                key=f"section_{key}",
-                use_container_width=True,
-                type="primary" if st.session_state.section_nav==label else "secondary",
-            ):
-                st.session_state.section_nav = label
-                st.rerun()
-
-    page = st.session_state.section_nav
-
-scope = st.selectbox("League",["Shiva","Shiva 2.0","Combined"])
 managers = current_managers(scope)
-manager = st.selectbox("Current Manager",managers)
+
+with top_manager_col:
+    manager = st.selectbox(
+        "Current Manager",
+        managers,
+        key="top_manager",
+        label_visibility="collapsed",
+    )
+
 rows = franchise_rows(manager,scope)
 team_name = franchise_name(manager,scope)
 
-if page == "History":
-    score = weighted_score(rows)
-    p = profile(rows)
+# Functional ESPN-style Shiva Tools navigation.
+TOOLS = [
+    ("Draft Intelligence","📊\nIntelligence","intel"),
+    ("Draft Coach","📋\nDraft Coach","coach"),
+    ("Player Fit","🎯\nPlayer Fit","fit"),
+    ("Draft Slot","🗺️\nDraft Plan","plan"),
+    ("Live Draft","🧩\nLive Draft","live"),
+    ("Grade My Draft","📝\nGrade Draft","grade"),
+    ("League History","🏛️\nHistory","history"),
+]
 
-    st.markdown('<div class="section-label">Franchise History</div>',unsafe_allow_html=True)
+if "section_nav" not in st.session_state:
+    st.session_state.section_nav = "Draft Intelligence"
+
+st.markdown(
+    f"""
+<div class="shiva-nav-shell">
+  <div class="shiva-nav-title">{team_name}</div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+nav_row1 = st.columns(4)
+nav_row2 = st.columns(4)
+nav_columns = [
+    nav_row1[0],nav_row1[1],nav_row1[2],nav_row1[3],
+    nav_row2[0],nav_row2[1],nav_row2[2],
+]
+
+for (page_name,label,key),column in zip(TOOLS,nav_columns):
+    with column:
+        if st.button(
+            label,
+            key=f"tool_{key}",
+            use_container_width=True,
+            type="primary" if st.session_state.section_nav == page_name else "secondary",
+        ):
+            st.session_state.section_nav = page_name
+            st.rerun()
+
+page = st.session_state.section_nav
+
+
+team_name = franchise_name(manager,scope)
+
+
+def build_draft_plan(rows: pd.DataFrame, slot: int, teams: int=10, rounds: int=16) -> pd.DataFrame:
+    """Create an ADP-grounded, round-by-round draft plan without inventing availability."""
+    schedule = snake_schedule(slot, teams, rounds)
+    pool = rankings.copy().sort_values(["adp","position_rank"], na_position="last")
+    profile_data = profile(rows)
+
+    selected_names:set[str] = set()
+    roster_counts = {"QB":0,"RB":0,"WR":0,"TE":0}
+    output = []
+
+    for pick in schedule:
+        rnd = int(pick["Round"])
+        overall = int(pick["Overall"])
+
+        available = pool[~pool["player_name"].isin(selected_names)].copy()
+
+        # A player is considered plausibly available when ADP is not materially earlier
+        # than this selection. This is fully grounded in the built-in verified ESPN ADP.
+        plausible = available[available["adp"] >= max(1, overall-7)].copy()
+        if plausible.empty:
+            plausible = available.copy()
+
+        plausible["availability_gap"] = (plausible["adp"]-overall).abs()
+        plausible["fit_bonus"] = 0.0
+
+        plausible.loc[plausible["position"].eq(profile_data["best_position"]), "fit_bonus"] += 7
+        plausible.loc[plausible["position"].eq(profile_data["middle_strength"]), "fit_bonus"] += 4
+
+        # Roster construction guardrails.
+        if rnd <= 3:
+            plausible.loc[plausible["position"].isin(["RB","WR"]), "fit_bonus"] += 9
+            plausible.loc[plausible["position"].isin(["QB","TE"]), "fit_bonus"] -= 4
+        elif rnd <= 6:
+            plausible.loc[plausible["position"].isin(["RB","WR"]), "fit_bonus"] += 5
+            if roster_counts["QB"] == 0:
+                plausible.loc[plausible["position"].eq("QB"), "fit_bonus"] += 2
+        elif rnd <= 9:
+            if roster_counts["QB"] == 0:
+                plausible.loc[plausible["position"].eq("QB"), "fit_bonus"] += 6
+            if roster_counts["TE"] == 0:
+                plausible.loc[plausible["position"].eq("TE"), "fit_bonus"] += 4
+        else:
+            plausible.loc[plausible["position"].isin(["RB","WR"]), "fit_bonus"] += 3
+
+        plausible["plan_score"] = (
+            -1.6*plausible["availability_gap"]
+            -0.15*plausible["adp"]
+            +plausible["fit_bonus"]
+        )
+
+        choice = plausible.sort_values(
+            ["plan_score","adp"],
+            ascending=[False,True],
+        ).iloc[0]
+
+        selected_names.add(str(choice["player_name"]))
+        pos = str(choice["position"])
+        if pos in roster_counts:
+            roster_counts[pos] += 1
+
+        alternatives = plausible[
+            plausible["player_name"].ne(choice["player_name"])
+        ].sort_values(["plan_score","adp"], ascending=[False,True]).head(2)
+
+        alt_text = ", ".join(alternatives["player_name"].tolist()) or "—"
+        reason_bits = [f"ESPN ADP {float(choice['adp']):.1f}"]
+        if pos == profile_data["best_position"]:
+            reason_bits.append("matches strongest historical position")
+        if rnd <= 3 and pos in {"RB","WR"}:
+            reason_bits.append("builds early RB/WR foundation")
+        if rnd >= 7 and pos in {"QB","TE"}:
+            reason_bits.append("fills a starting position at value")
+
+        output.append({
+            "Round":rnd,
+            "Pick":overall,
+            "Recommended Player":choice["player_name"],
+            "Pos":pos,
+            "ESPN ADP":float(choice["adp"]),
+            "Why":" · ".join(reason_bits),
+            "Alternatives":alt_text,
+        })
+
+    return pd.DataFrame(output)
+
+
+
+
+def set_quick_report_prompt(value: str) -> None:
+    st.session_state["quick_report_prompt"] = value
+
+
+if page == "League History":
+    st.markdown('<div class="section-label">Search Historical Drafts</div>', unsafe_allow_html=True)
+
+    available_seasons = sorted(
+        rows["season"].dropna().astype(int).unique(),
+        reverse=True,
+    )
+    season_choice = st.selectbox(
+        "Season",
+        ["All Seasons"]+[str(x) for x in available_seasons],
+        key="history_season",
+    )
+    player_search = st.text_input(
+        "Search Player",
+        placeholder="Optional: type a player name",
+        key="history_player_search",
+    )
+
+    history_rows = rows.copy()
+    if season_choice != "All Seasons":
+        history_rows = history_rows[history_rows["season"].eq(int(season_choice))]
+
+    if player_search.strip():
+        history_rows = history_rows[
+            history_rows["player_name"].str.contains(
+                player_search.strip(),
+                case=False,
+                na=False,
+            )
+        ]
+
     st.markdown(
         f"""
 <div class="card">
   <div class="card-title">{team_name}</div>
-  <div class="card-sub">{manager} · Historical franchise data</div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"""
-<div class="metric-grid">
-  <div class="metric-box"><div class="metric-label">Draft Grade</div><div class="metric-value green">{letter_grade(score)}</div></div>
-  <div class="metric-box"><div class="metric-label">Best Position</div><div class="metric-value blue">{p['best_position']}</div></div>
-  <div class="metric-box"><div class="metric-label">Weakest Round</div><div class="metric-value red">R{p['worst_round']}</div></div>
+  <div class="card-sub">{manager} · {scope} · {season_choice} · {len(history_rows)} picks</div>
 </div>
 """,
         unsafe_allow_html=True,
     )
 
-elif page == "2026 Draft Coach":
+    display = history_rows[
+        [
+            "season","league_name","round","overall_pick","player_name","position",
+            "position_draft_rank","position_finish_total",
+            "fantasy_points_ppr","ppg","games_played","Result",
+        ]
+    ].rename(
+        columns={
+            "season":"Season",
+            "league_name":"League",
+            "round":"Round",
+            "overall_pick":"Overall",
+            "player_name":"Player",
+            "position":"Pos",
+            "position_draft_rank":"Drafted Pos Rank",
+            "position_finish_total":"Final Pos Rank",
+            "fantasy_points_ppr":"PPR Points",
+            "ppg":"PPG",
+            "games_played":"Games",
+        }
+    )
+
+    st.dataframe(
+        display.style.format({
+            "PPR Points":"{:.1f}",
+            "PPG":"{:.2f}",
+        }),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+elif page == "Draft Coach":
     score = weighted_score(rows)
     p = profile(rows)
     rules,do_more,do_less = rules_for(rows)
 
+    draft_identity = f"{p['early_identity']}-Heavy"
+    best_round_text = f"Round {p['best_round']}" if p["best_round"] else "—"
+    focus_text = f"Target {p['best_position']} value"
+    daily_tip = (
+        f"Your strongest historical profile is {p['best_position']} value, "
+        f"while Round {p['worst_round']} has been your biggest premium-round leak."
+    )
+
     st.markdown('<div class="section-label">Your 2026 Draft Plan</div>',unsafe_allow_html=True)
+
     st.markdown(
         f"""
-<div class="card">
-  <div class="card-title">{team_name}</div>
-  <div class="card-sub">{manager} · Personalized from your complete historical draft record</div>
+<div class="daily-tip">
+  <div class="daily-tip-label">Today's Draft Tip</div>
+  <div class="daily-tip-text">{daily_tip}</div>
 </div>
 """,
         unsafe_allow_html=True,
@@ -617,45 +1238,60 @@ elif page == "2026 Draft Coach":
 
     st.markdown(
         f"""
-<div class="metric-grid">
-  <div class="metric-box"><div class="metric-label">Historical Draft Grade</div><div class="metric-value green">{letter_grade(score)}</div></div>
-  <div class="metric-box"><div class="metric-label">Strongest Position</div><div class="metric-value blue">{p['best_position']}</div></div>
-  <div class="metric-box"><div class="metric-label">Weakest Premium Round</div><div class="metric-value red">R{p['worst_round']}</div></div>
+<div class="coach-grid">
+  <div class="coach-card">
+    <div class="coach-label">Your Draft Identity</div>
+    <div class="coach-value green">{draft_identity}</div>
+  </div>
+  <div class="coach-card">
+    <div class="coach-label">Best Round</div>
+    <div class="coach-value blue">{best_round_text}</div>
+  </div>
+  <div class="coach-card">
+    <div class="coach-label">2026 Focus</div>
+    <div class="coach-value red">{focus_text}</div>
+  </div>
 </div>
 """,
         unsafe_allow_html=True,
     )
 
     st.markdown('<div class="section-label">Your Five Draft Rules</div>',unsafe_allow_html=True)
-    st.markdown('<div class="card">',unsafe_allow_html=True)
     for i,rule in enumerate(rules,1):
         st.markdown(
             f"""
-<div class="list-row">
-  <div class="rank-circle">{i}</div>
-  <div class="row-title">{rule}</div>
-  <div class="row-tag">2026</div>
+<div class="coaching-card">
+  <div class="coaching-title">{i}. {rule}</div>
 </div>
 """,
             unsafe_allow_html=True,
         )
-    st.markdown('</div>',unsafe_allow_html=True)
 
     st.markdown('<div class="section-label">Do More</div>',unsafe_allow_html=True)
-    st.markdown('<div class="card">',unsafe_allow_html=True)
     for item in do_more:
-        st.markdown(f'<div class="callout"><div class="callout-title">{item}</div></div>',unsafe_allow_html=True)
-    st.markdown('</div>',unsafe_allow_html=True)
+        st.markdown(
+            f"""
+<div class="coaching-card">
+  <div class="coaching-title">✓ {item}</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
 
     st.markdown('<div class="section-label">Do Less</div>',unsafe_allow_html=True)
-    st.markdown('<div class="card">',unsafe_allow_html=True)
     for item in do_less:
-        st.markdown(f'<div class="callout red"><div class="callout-title">{item}</div></div>',unsafe_allow_html=True)
-    st.markdown('</div>',unsafe_allow_html=True)
+        st.markdown(
+            f"""
+<div class="coaching-card">
+  <div class="coaching-title">⚠ {item}</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
 
 elif page == "Player Fit":
     st.caption(f"Verified 2026 FantasyPros ESPN ADP is built in: {len(rankings)} players.")
-    current_pick = st.number_input("Your Current Overall Pick",1,200,9,1)
+    current_pick = st.number_input("Draft Pick",1,200,1,1)
     fits = player_fit(rows,int(current_pick))
     fit_filter = st.selectbox("Show",["Strong Fit","Acceptable","Risky","Avoid at ADP"])
     selected = fits[fits["Fit"].eq(fit_filter)].head(15)
@@ -679,34 +1315,39 @@ elif page == "Player Fit":
         )
     st.markdown('</div>',unsafe_allow_html=True)
 
-elif page == "Draft Slot Plan":
-    slot = st.number_input("Your Draft Slot",1,10,9,1)
-    schedule = pd.DataFrame(snake_schedule(int(slot),10,16))
+elif page == "Draft Slot":
+    slot = st.number_input("Draft Position",1,10,1,1)
+    draft_plan = build_draft_plan(rows,int(slot),10,16)
 
-    st.markdown('<div class="section-label">Your Pick Schedule</div>',unsafe_allow_html=True)
-    st.dataframe(schedule,use_container_width=True,hide_index=True)
+    st.markdown('<div class="section-label">Your 2026 Round-by-Round Draft Plan</div>',unsafe_allow_html=True)
+    st.markdown(
+        f"""
+<div class="card">
+  <div class="card-title">Pick {int(slot)} · 10-Team Snake</div>
+  <div class="card-sub">Recommendations use the verified built-in 2026 ESPN ADP and your historical draft profile.</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-    phases = [
-        ("Rounds 1–2","Build the foundation","Take the highest-tier RB/WR value. Do not force a position after the tier dries up."),
-        ("Round 3","Complete the core","Leave the first three rounds with dependable weekly starters."),
-        ("Rounds 4–6","Add weekly usability","Prioritize clear roles and proven scoring paths."),
-        ("Rounds 7–9","Chase upside","Target players who can become weekly starters."),
-        ("Rounds 10+","Swing for impact","Late misses are cheap. Chase breakout and contingent value."),
-    ]
-
-    st.markdown('<div class="section-label">Round-by-Round Plan</div>',unsafe_allow_html=True)
-    st.markdown('<div class="card">',unsafe_allow_html=True)
-    for phase,title,body in phases:
+    for _,pick in draft_plan.iterrows():
         st.markdown(
             f"""
-<div class="callout blue">
-  <div class="callout-title">{phase}: {title}</div>
-  <div class="callout-sub">{body}</div>
+<div class="coaching-card">
+  <div class="coaching-title">Round {int(pick['Round'])} · Pick {int(pick['Pick'])}: {pick['Recommended Player']} ({pick['Pos']})</div>
+  <div class="coaching-body">{pick['Why']}</div>
+  <div class="row-sub">Other likely options: {pick['Alternatives']}</div>
 </div>
 """,
             unsafe_allow_html=True,
         )
-    st.markdown('</div>',unsafe_allow_html=True)
+
+    with st.expander("View full pick schedule"):
+        st.dataframe(
+            draft_plan[["Round","Pick","Recommended Player","Pos","ESPN ADP","Alternatives"]],
+            use_container_width=True,
+            hide_index=True,
+        )
 
 elif page == "Live Draft":
     live_league = scope if scope in LEAGUE_IDS else st.selectbox("Live League",["Shiva","Shiva 2.0"])
@@ -801,6 +1442,64 @@ elif page == "Live Draft":
         st.markdown('</div>',unsafe_allow_html=True)
 
     live_panel()
+
+elif page == "Draft Intelligence":
+    st.markdown('<div class="section-label">Shiva Draft Intelligence Home</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+<div class="card">
+  <div class="card-title">What Do You Want To Know?</div>
+  <div class="card-sub">Ask a plain-English fantasy question. The report runs only against verified fields available inside the Shiva database.</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+    quick_prompt = st.text_input(
+        "Report request",
+        placeholder="Example: Show average PPG for RBs that finished top 5 over the last 5 years",
+        key="quick_report_prompt",
+    )
+
+    examples = st.columns(2)
+    with examples[0]:
+        st.button(
+            "Top-5 RB average PPG",
+            key="example_top5_rb",
+            use_container_width=True,
+            on_click=set_quick_report_prompt,
+            args=("Show average PPG for RBs that finished top 5 over the last 5 years",),
+        )
+    with examples[1]:
+        st.button(
+            "Biggest draft steals",
+            key="example_steals",
+            use_container_width=True,
+            on_click=set_quick_report_prompt,
+            args=("Show me the biggest draft steals",),
+        )
+
+    if st.button("Run Report", key="run_quick_report", use_container_width=True):
+        if not quick_prompt.strip():
+            st.warning("Type a report request first.")
+        else:
+            report = parse_quick_report(quick_prompt)
+            st.markdown(
+                f"""
+<div class="report-box">
+  <div class="report-title">{report['title']}</div>
+  <div class="report-answer">{report['answer']}</div>
+  <div class="report-note">{report['note']}</div>
+</div>
+""",
+                unsafe_allow_html=True,
+            )
+            if not report["table"].empty:
+                st.dataframe(
+                    report["table"],
+                    use_container_width=True,
+                    hide_index=True,
+                )
 
 else:
     st.markdown('<div class="section-label">Grade My Draft</div>',unsafe_allow_html=True)
