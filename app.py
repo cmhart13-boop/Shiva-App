@@ -1,1 +1,1 @@
-from shiva_smooth import *
+from shiva_splash_smooth import *
