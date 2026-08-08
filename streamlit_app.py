@@ -1,1 +1,1 @@
-from main_app import *
+from shiva_redesign import *
