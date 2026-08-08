@@ -54,14 +54,16 @@ if "_shiva_splash_seen" not in st.session_state:
 '''
 
 source = source.replace('CSS = r"""', SPLASH + '\n\nCSS = r"""', 1)
-
+source = source.replace(
+    'st.error("Add OPENAI_API_KEY in Streamlit → App Settings → Secrets to activate Ask Shiva.")',
+    'st.warning("Ask Shiva is ready. Add your OpenAI API key in Streamlit → App Settings → Secrets to turn on GPT answers.")',
+    1,
+)
 source = source.replace(
     'if st.session_state.page == "Shiva Intelligence":',
     'if st.session_state.page == "Player Profile":\n    render_player_profile(st.session_state.get("selected_player", ""), rankings, history)\n\nelif st.session_state.page == "Shiva Intelligence":',
     1,
 )
-
 old_home_metrics = '''    top_rb = rankings[rankings.position.eq("RB")].head(1)\n    top_wr = rankings[rankings.position.eq("WR")].head(1)\n    st.markdown(f\'\'\'<div class="metric-grid"><div class="metric"><div class="metric-label">Players Loaded</div><div class="metric-value green">{len(rankings)}</div></div><div class="metric"><div class="metric-label">Historical Rows</div><div class="metric-value blue">{len(history):,}</div></div><div class="metric"><div class="metric-label">Top RB</div><div class="metric-value" style="font-size:14px">{top_rb.iloc[0].player_name if not top_rb.empty else \'—\'}</div></div><div class="metric"><div class="metric-label">Top WR</div><div class="metric-value" style="font-size:14px">{top_wr.iloc[0].player_name if not top_wr.empty else \'—\'}</div></div></div>\'\'\', unsafe_allow_html=True)'''
 source = source.replace(old_home_metrics, '    render_top_board(rankings, "Shiva Intelligence")', 1)
-
 exec(compile(source, str(source_path), "exec"), globals(), globals())
